@@ -21,7 +21,7 @@ function addDefaultBtn() {
     topicsC.map((currElement, index) => addTagBtn(currElement,index.toString()));
 };
 
-addDefaultBtn();
+
 
 $(".addBtn").click(function(event) {
 
@@ -32,7 +32,6 @@ $(".addBtn").click(function(event) {
     if(!addBtn) {
         return;
     };
-    // if ($("#typeinKeyWord").val() != "") {
     addBtn_Cap = addBtn[0].toUpperCase() + addBtn.substr(1);
     if (topicsC.indexOf(addBtn) === -1) {
         topicsC.push(addBtn_Cap);
@@ -45,44 +44,72 @@ $(".addBtn").click(function(event) {
     $("#typeinKeyWord").val('');
 
     addDefaultBtn();
-    // };
+
+    $(".gif").unbind();
+    $(".searchBtn").unbind();
+
+    searchGif();
+
 });
 
-$(".searchBtn").click(function(){
+function searchGif() {
 
-    var currentSearchName = $(this).attr("btn-name").replace(/ /g, "+");
-    console.log(currentSearchName);
-    var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + currentSearchName + "&api_key=" + apiKey + "&limit=20";
+    $(".searchBtn").click(function(){
+
+        var currentSearchName = $(this).attr("btn-name").replace(/ /g, "+");
+        console.log(currentSearchName);
+        var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + currentSearchName + "&api_key=" + apiKey + "&limit=21";
+        
+        $.ajax({
+            url: queryURL, 
+            method:"GET" 
+        }).then(function(response){
     
-    $.ajax({
-        url: queryURL, 
-        method:"GET" 
-    }).then(function(response){
+            $(".displayRow").empty();
+            console.log(response);
+            var results = response.data;
+    
+            for(var i=0; i<results.length; i++) {
+                var rating = results[i].rating;
+                var imgURLAnimate = results[i].images.fixed_height.url;
+                var imgURLStill = results[i].images.fixed_height_still.url;
+    
+                var gifCol = $("<div>").addClass("col-md-4");
+                var p = $("<p>")
+                    .text("Rating: "+rating)
+                    .addClass("pLineBr")
+                    .addClass("text-uppercase");
+                var gifImg = $("<img>")
+                    .addClass("gif")
+                    .attr("src",imgURLStill)
+                    .attr("imgStill",imgURLStill)
+                    .attr("imgAnimate",imgURLAnimate)
+                    .attr("currentStatus","still")
+                    .attr("alt",currentSearchName+" Gif Image");
+                gifCol.append(p);
+                gifCol.append(gifImg);
+                $(".displayRow").append(gifCol);
+            };
+    
+            $(".gif").click(function(){
+    
+                var imgURLAnimate = $(this).attr("imgAnimate");
+                console.log(imgURLAnimate);
+                var imgURLStill = $(this).attr("imgStill");
+                console.log(imgURLStill);
+            
+                if($(this).attr("currentStatus") === "still") {
+                    $(this).attr("src",imgURLAnimate);
+                    $(this).attr("currentStatus","animate");
+                } else {
+                    $(this).attr("src",imgURLStill);
+                    $(this).attr("currentStatus","still");
+                };
+            });
+    
+        });
+    });    
+}
 
-        $(".displayRow").empty();
-        console.log(response);
-        var results = response.data;
-
-        for(var i=0; i<results.length; i++) {
-            var rating = results[i].rating;
-            var imgURLAnimate = results[i].images.fixed_height.url;
-            var imgURLStill = results[i].images.fixed_height_still.url;
-
-            var gifCol = $("<div>").addClass("col-md-4");
-            var p = $("<p>")
-                .text("Rating: "+rating)
-                .addClass("pLineBr");
-            var gifImg = $("<img>")
-                .addClass("gif")
-                .attr("src",imgURLStill)
-                .attr("imgStill",imgURLStill)
-                .attr("imgAnimate",imgURLAnimate)
-                .attr("currentStatus","still")
-                .attr("alt","Gif Image");
-            gifCol.append(p);
-            gifCol.append(gifImg);
-            $(".displayRow").append(gifCol);
-        };
-
-    });
-});
+addDefaultBtn();
+searchGif();
