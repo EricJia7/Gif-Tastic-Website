@@ -33,7 +33,7 @@ $(".addBtn").click(function(event) {
         return;
     };
     addBtn_Cap = addBtn[0].toUpperCase() + addBtn.substr(1);
-    if (topicsC.indexOf(addBtn) === -1) {
+    if (topicsC.indexOf(addBtn_Cap) === -1) {
         topicsC.push(addBtn_Cap);
         console.log(topicsC);
         addTagBtn(topicsC[topicsC.length - 1], (topicsC.length-1));
